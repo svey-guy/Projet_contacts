@@ -179,12 +179,23 @@ class ContactManager {
             const contactData = {
                 nom: formData.get('nom'),
                 email: formData.get('email'),
-                telephone: formData.get('telephone')
+                telephone: formData.get('telephone'),
+                latitude: formData.get('latitude') || null,
+                longitude: formData.get('longitude') || null
             };
             
             // Validation côté client
             if (!contactData.nom || !contactData.email) {
                 this.showMessage('Le nom et l\'email sont requis', 'error');
+                return;
+            }
+            
+            // Validation des coordonnées (si l'une est fournie, l'autre doit l'être aussi)
+            const hasLatitude = contactData.latitude && contactData.latitude !== '';
+            const hasLongitude = contactData.longitude && contactData.longitude !== '';
+            
+            if (hasLatitude !== hasLongitude) {
+                this.showMessage('Veuillez fournir à la fois la latitude et la longitude, ou laisser les deux vides', 'error');
                 return;
             }
             

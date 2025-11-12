@@ -29,6 +29,16 @@
                 <label for="telephone">Téléphone :</label>
                 <input type="text" id="telephone" name="telephone">
             </div>
+            <div class="form-group">
+                <label for="latitude">Latitude :</label>
+                <input type="number" id="latitude" name="latitude" step="0.000001" placeholder="Ex: 48.8566">
+                <small style="color: #666; font-size: 12px;">Coordonnée GPS (optionnel)</small>
+            </div>
+            <div class="form-group">
+                <label for="longitude">Longitude :</label>
+                <input type="number" id="longitude" name="longitude" step="0.000001" placeholder="Ex: 2.3522">
+                <small style="color: #666; font-size: 12px;">Coordonnée GPS (optionnel)</small>
+            </div>
             <div class="form-actions">
                 <button type="submit" id="submitBtn">
                     <span class="btn-text">Ajouter</span>

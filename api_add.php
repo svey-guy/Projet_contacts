@@ -22,6 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nom = isset($input['nom']) ? trim($input['nom']) : '';
     $email = isset($input['email']) ? trim($input['email']) : '';
     $telephone = isset($input['telephone']) ? trim($input['telephone']) : '';
+    $latitude = isset($input['latitude']) && $input['latitude'] !== '' ? floatval($input['latitude']) : null;
+    $longitude = isset($input['longitude']) && $input['longitude'] !== '' ? floatval($input['longitude']) : null;
     
     // Validation
     if (empty($nom) || empty($email)) {
@@ -42,10 +44,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
     
+    // Validation des coordonnées GPS
+    if (($latitude !== null && $longitude === null) || ($latitude === null && $longitude !== null)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'La latitude et la longitude doivent être fournies ensemble'
+        ]);
+        exit();
+    }
+    
+    if ($latitude !== null && ($latitude < -90 || $latitude > 90)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'La latitude doit être entre -90 et 90'
+        ]);
+        exit();
+    }
+    
+    if ($longitude !== null && ($longitude < -180 || $longitude > 180)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'La longitude doit être entre -180 et 180'
+        ]);
+        exit();
+    }
+    
     try {
-        $sql = "INSERT INTO contacts (nom, email, telephone) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO contacts (nom, email, telephone, latitude, longitude) VALUES (?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nom, $email, $telephone]);
+        $stmt->execute([$nom, $email, $telephone, $latitude, $longitude]);
         
         $contactId = $pdo->lastInsertId();
         
@@ -56,7 +86,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 'id' => $contactId,
                 'nom' => $nom,
                 'email' => $email,
-                'telephone' => $telephone
+                'telephone' => $telephone,
+                'latitude' => $latitude,
+                'longitude' => $longitude
             ]
         ]);
     } catch (PDOException $e) {
