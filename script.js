@@ -17,12 +17,79 @@ class ContactManager {
             messageContainer: document.getElementById('messageContainer')
         };
         
+        // Leaflet map
+        this.map = null;
+        this.markers = [];
+        
         this.init();
     }
     
     init() {
         this.bindEvents();
+        this.initMap();
         this.loadContacts();
+    }
+    
+    // Initialiser la carte Leaflet
+    initMap() {
+        // Créer la carte centrée sur Paris par défaut
+        this.map = L.map('map').setView([48.8566, 2.3522], 6);
+        
+        // Ajouter la couche de tuiles OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(this.map);
+    }
+    
+    // Ajouter les marqueurs des contacts sur la carte
+    updateMapMarkers(contacts) {
+        // Effacer les anciens marqueurs
+        this.markers.forEach(marker => {
+            this.map.removeLayer(marker);
+        });
+        this.markers = [];
+        
+        // Filtrer les contacts qui ont des coordonnées valides
+        const contactsWithCoordinates = contacts.filter(contact => 
+            contact.latitude && contact.longitude && 
+            !isNaN(parseFloat(contact.latitude)) && 
+            !isNaN(parseFloat(contact.longitude))
+        );
+        
+        if (contactsWithCoordinates.length === 0) {
+            console.log('Aucun contact avec des coordonnées valides');
+            return;
+        }
+        
+        // Ajouter un marqueur pour chaque contact
+        contactsWithCoordinates.forEach(contact => {
+            const lat = parseFloat(contact.latitude);
+            const lon = parseFloat(contact.longitude);
+            
+            // Créer le contenu du popup
+            const popupContent = `
+                <div class="contact-popup">
+                    <h4>${this.escapeHtml(contact.nom)}</h4>
+                    <p>📧 <a href="mailto:${contact.email}" class="email">${this.escapeHtml(contact.email)}</a></p>
+                    ${contact.telephone ? `<p>📞 ${this.escapeHtml(contact.telephone)}</p>` : ''}
+                    <p>📍 ${lat.toFixed(4)}, ${lon.toFixed(4)}</p>
+                </div>
+            `;
+            
+            // Créer le marqueur
+            const marker = L.marker([lat, lon])
+                .addTo(this.map)
+                .bindPopup(popupContent);
+            
+            this.markers.push(marker);
+        });
+        
+        // Ajuster la vue pour afficher tous les marqueurs
+        if (this.markers.length > 0) {
+            const group = new L.featureGroup(this.markers);
+            this.map.fitBounds(group.getBounds().pad(0.1));
+        }
     }
     
     bindEvents() {
@@ -91,6 +158,7 @@ class ContactManager {
             
             if (data.success) {
                 this.renderContacts(data.data);
+                this.updateMapMarkers(data.data); // Mettre à jour la carte
             } else {
                 this.showMessage('Erreur lors du chargement des contacts: ' + data.message, 'error');
             }

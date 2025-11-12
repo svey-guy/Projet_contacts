@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des contacts</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
 </head>
 <body>
     <h2>Liste des contacts</h2>
@@ -38,6 +42,12 @@
     <!-- Messages de statut -->
     <div id="messageContainer" class="message-container"></div>
     
+    <!-- Carte Leaflet -->
+    <div class="map-container">
+        <h3>📍 Carte des contacts</h3>
+        <div id="map"></div>
+    </div>
+    
     <hr>
 
     <!-- Indicateur de chargement -->
@@ -59,6 +69,10 @@
         </tbody>
     </table>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
     <script src="script.js"></script>
 </body>
 </html>
